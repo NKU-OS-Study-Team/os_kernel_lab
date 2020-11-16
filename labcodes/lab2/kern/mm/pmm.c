@@ -373,19 +373,6 @@ memset(ptep, 0, PGSIZE); // 新创建的页表进行初始化
 *pdep = (page2pa(pt)) | PTE_U | PTE_W | PTE_P; // 对原先的页目录项进行设置，包括设置其对应的页表的物理地址，以及包括存在位在内的标志位
 return ptep[PTX(la)]; // 返回线性地址对应的页目录项
 
-
-// pde_t *pdep = &pgdir[PDX(la)];
-//     if (!(*pdep & PTE_P)) {
-//         struct Page *page;
-//         if (!create || (page = alloc_page()) == NULL) {
-//             return NULL;
-//         }
-//         set_page_ref(page, 1);
-//         uintptr_t pa = page2pa(page);
-//         memset(KADDR(pa), 0, PGSIZE);
-//         *pdep = pa | PTE_U | PTE_W | PTE_P;
-//     }
-//     return &((pte_t *)KADDR(PDE_ADDR(*pdep)))[PTX(la)];
 }
 
 //get_page - get related Page struct for linear address la using PDT pgdir

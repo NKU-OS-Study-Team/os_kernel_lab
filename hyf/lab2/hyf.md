@@ -1,6 +1,9 @@
 # 内存管理
 [`1811363 洪一帆`]()
 
+![](段页式.png)
+在 ucore 中段式管理只起到了一个过渡作用，它将逻辑地 址不加转换直接映射成线性地址
+
 ## my work
 >练习3：释放某虚地址所在的页并取消对应二级页表项的映射（需要编程） 
 >当释放一个包含某虚地址的物理内存页时，需要让对应此物理内存页的管理数据结构Page做
@@ -118,7 +121,7 @@ Frame）的对应关系完成CPU对内存的读、写和执行操作。这一部
  * */
 struct Page {
     int ref;                        // page frame's reference counter
-                                    // ref表示这样页被页表的引用记数 （在“实现分页机制”一节会讲到）。如果这个页被页表引用了，即在某页表中有一个页表项设 置了一个虚拟页到这个Page管理的物理页的映射关系，就会把Page的ref加一；反之，若页表 项取消，即映射关系解除，就会把Page的ref减一。f
+                                    // ref表示这页被页表的引用记数 （在“实现分页机制”一节会讲到）。如果这个页被页表引用了，即在某页表中有一个页表项设 置了一个虚拟页到这个Page管理的物理页的映射关系，就会把Page的ref加一；反之，若页表 项取消，即映射关系解除，就会把Page的ref减一。
     uint32_t flags;                 // array of flags that describe the status of the page frame 这表示flags目前用到了两个bit表示页目前具有的两种属性，bit 0表示此页是否被保留 （reserved），如果是被保留的页，则bit 0会设置为1，且不能放到空闲页链表中，即这样的 页不是空闲页，不能动态分配与释放。
     unsigned int property;          // the num of free block, used in first fit pm manager，主要是我们可以设计不同的页分配算法（best fit, buddy system等），那么这个PG_property就有不同的含义了。
                                     //Page数据结构的成员变量property用来记录某连续内存空闲块的大小（即地址 连续的空闲页的个数）。这里需要注意的是用到此成员变量的这个Page比较特殊，是这个连 续内存空闲块地址最小的一页（即头一页， Head Page）。连续内存空闲块利用这个页的成

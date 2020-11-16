@@ -21,3 +21,6 @@ disk0
 lab2*.idea
 compile_commands.json
 *.zip
+.vscode
+cmake-*
+/hyf

@@ -6,9 +6,6 @@
       <file path="$PROJECT_DIR$/labcodes/lab2" />
       <file path="$PROJECT_DIR$/labcodes_answer" />
     </sourceRoots>
-    <libraryRoots>
-      <file path="$PROJECT_DIR$/related_info" />
-    </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/hyf" />
     </excludeRoots>
