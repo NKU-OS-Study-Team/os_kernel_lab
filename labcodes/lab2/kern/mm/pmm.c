@@ -362,7 +362,7 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
 #endif
 
 pde_t *pdep = &pgdir[PDX(la)]; // 获取到页目录表中给定线性地址对应到的页目录项
-pte_t *ptep = &(((pte_t *) (KADDR(*pdep & ~0XFFF))[PTX(la)])); // 从找到的页目录项中查询到线性地址对应到的页表中的页表项，即页表基址加上线性地址的中的offset（第12...21位，从0开始）
+pte_t *ptep = &(((pte_t *) (KADDR(*pdep))[PTX(la)])); // 从找到的页目录项中查询到线性地址对应到的页表中的页表项，即页表基址加上线性地址的中的offset（第12...21位，从0开始）
 if (*pdep & PTE_P) return ptep; // 检查查找到的页目录项是否存在，如果存在直接放回找到的页表项即可
 if (!create) return NULL; // 如果该页目录项是不存在的，并且参数要求不创建新的页表，则直接返回
 struct Page* pt = alloc_page(); // 如果需要按需创建新的页表，则请求一个物理页来存储新创建的页表
@@ -370,22 +370,22 @@ if (pt == NULL) return NULL; // 如果物理空间不足，直接返回
 set_page_ref(pt, 1); // 更新该物理页的引用计数
 ptep = KADDR(page2pa(pt)); // 获取到该物理页的虚拟地址（此时已经启动了page机制，内核地址空间），这是因为CPU执行的指令中使用的已经是虚拟地址了
 memset(ptep, 0, PGSIZE); // 新创建的页表进行初始化
-*pdep = (page2pa(pt) & ~0XFFF) | PTE_U | PTE_W | PTE_P; // 对原先的页目录项进行设置，包括设置其对应的页表的物理地址，以及包括存在位在内的标志位
-return ptep + PTX(la); // 返回线性地址对应的页目录项
+*pdep = (page2pa(pt)) | PTE_U | PTE_W | PTE_P; // 对原先的页目录项进行设置，包括设置其对应的页表的物理地址，以及包括存在位在内的标志位
+return ptep[PTX(la)]; // 返回线性地址对应的页目录项
 
 
-pde_t *pdep = &pgdir[PDX(la)];
-    if (!(*pdep & PTE_P)) {
-        struct Page *page;
-        if (!create || (page = alloc_page()) == NULL) {
-            return NULL;
-        }
-        set_page_ref(page, 1);
-        uintptr_t pa = page2pa(page);
-        memset(KADDR(pa), 0, PGSIZE);
-        *pdep = pa | PTE_U | PTE_W | PTE_P;
-    }
-    return &((pte_t *)KADDR(PDE_ADDR(*pdep)))[PTX(la)];
+// pde_t *pdep = &pgdir[PDX(la)];
+//     if (!(*pdep & PTE_P)) {
+//         struct Page *page;
+//         if (!create || (page = alloc_page()) == NULL) {
+//             return NULL;
+//         }
+//         set_page_ref(page, 1);
+//         uintptr_t pa = page2pa(page);
+//         memset(KADDR(pa), 0, PGSIZE);
+//         *pdep = pa | PTE_U | PTE_W | PTE_P;
+//     }
+//     return &((pte_t *)KADDR(PDE_ADDR(*pdep)))[PTX(la)];
 }
 
 //get_page - get related Page struct for linear address la using PDT pgdir
